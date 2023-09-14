@@ -1,24 +1,44 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import useClipboard from 'react-use-clipboard';
 
 function App() {
+  
+  const [textCopy, setTextCopy] = useState();
+  const [isCopied, setCopied] = useClipboard(textCopy, {
+    successDuration:1000
+  });
+  
+  const startListening = () => SpeechRecognition.startListening({ continuous: true, language: 'en-IN' });
+  const { transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+
+  if (!browserSupportsSpeechRecognition) {
+    return null
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+    <>
+      <div className='container'>
+        <h2>Speech to text Converter</h2>
+        <br/>
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          React hook that converts speech from tw microphone to text and make it availabe to your
+          React components
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+        <div className='main-content' onClick={() => setTextCopy(transcript)}>
+          {transcript}
+        </div>
+        <div className='btn-style'>
+          <button onClick={setCopied}>
+            {isCopied ? 'Copied!' : 'Copy to clipboard'}
+          </button>
+          <button onClick={startListening}>Start Listening</button>
+          <button onClick={SpeechRecognition.stopListening}>Stop Listening</button>
+          <button onClick={resetTranscript}>Reset</button>
+        </div>
+      </div>
+    </>
   );
 }
 
